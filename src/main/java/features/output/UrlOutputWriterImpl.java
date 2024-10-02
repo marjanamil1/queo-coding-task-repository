@@ -6,6 +6,6 @@ import java.util.List;
 public class UrlOutputWriterImpl implements OutputWriter {
     @Override
     public String writeOutput(List<Float> inputList) throws WriteErrorException {
-        return null;
+        return null; // TODO
     }
 }

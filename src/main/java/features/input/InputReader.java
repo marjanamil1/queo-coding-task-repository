@@ -1,8 +1,6 @@
 package features.input;
 
 import exceptions.ReadErrorException;
-
-import java.io.IOException;
 import java.util.List;
 
 /**
