@@ -14,7 +14,6 @@ import features.output.StdOutWriterImpl;
 import features.output.UrlOutputWriterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -134,6 +133,9 @@ public class CLIApp {
                 // TODO: Implement URL input handling
                 System.out.println("URL input handling is not implemented yet.");
                 break;
+            default:
+                System.err.println("Unknown input type, will be ignored.");
+                break;
         }
 
         ActionsManager actionsManager = new ActionsManagerImpl();
@@ -158,6 +160,9 @@ public class CLIApp {
                 filteredValues = actionsManager.filter(inputList);
                 resultValues.addAll(filteredValues);
                 break;
+            default:
+                System.err.println("Unknown operation, will be ignored.");
+                break;
         }
 
         OutputWriter resultOutputWriter;
@@ -167,7 +172,7 @@ public class CLIApp {
                 resultOutputWriter = new StdOutWriterImpl(); // to display the result on the screen
                 try {
                     System.out.println("The result of the specified operation " +
-                            action + "is: " + resultOutputWriter.writeOutput(resultValues));
+                            action + " is: " + resultOutputWriter.writeOutput(resultValues));
                 } catch (WriteErrorException e) {
                     logger.error("Error reading input: {}", e.getMessage(), e);
                 }
@@ -191,6 +196,9 @@ public class CLIApp {
                 resultOutputWriter = new UrlOutputWriterImpl();
                 // TODO: Implement URL output handling
                 System.out.println("URL input handling is not implemented yet.");
+                break;
+            default:
+                System.err.println("Unknown output type, will be ignored.");
                 break;
         }
 
