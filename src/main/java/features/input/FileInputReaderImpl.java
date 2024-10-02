@@ -1,7 +1,5 @@
 package features.input;
 
-import features.input.InputReader;
-
 import java.util.List;
 
 public class FileInputReaderImpl implements InputReader {

@@ -1,6 +1,5 @@
 package clientInterface;
 
-import ch.qos.logback.core.util.StringUtil;
 import exceptions.ReadErrorException;
 import exceptions.WriteErrorException;
 import features.actions.ActionsManager;
@@ -15,9 +14,8 @@ import features.output.StdOutWriterImpl;
 import features.output.UrlOutputWriterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +141,7 @@ public class CLIApp {
         float minValue;
         float maxValue;
         List<Float> filteredValues;
-        List<Float> resultValues = null;
+        List<Float> resultValues = new ArrayList<>();
 
         switch (action.toUpperCase()) {
             case "SUM":

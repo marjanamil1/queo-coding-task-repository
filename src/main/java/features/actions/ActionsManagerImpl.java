@@ -1,7 +1,5 @@
 package features.actions;
 
-import features.actions.ActionsManager;
-
 import java.util.ArrayList;
 import java.util.List;
 
