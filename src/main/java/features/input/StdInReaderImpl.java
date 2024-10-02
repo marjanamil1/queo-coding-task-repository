@@ -61,9 +61,8 @@ public class StdInReaderImpl implements InputReader {
         } catch (IOException e) {
             logger.error("IOException occurred while reading input.", e);
             throw new ReadErrorException(e, 2); // Error code 2 for read error
-        } finally {
-            logger.info("Closing connection to read input from stdin.");
         }
+        logger.info("Closing connection to read input from stdin.");
         return inputList;
     }
 }
