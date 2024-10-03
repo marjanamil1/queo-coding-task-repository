@@ -28,4 +28,17 @@ public class WriteErrorException extends IOException {
     public int getErrorCode() {
         return errorCode;
     }
+
+    public String getErrorDescription() {
+        String errorDescription = null;
+        if (this.errorCode == 0) {
+            errorDescription = "ok";
+        }
+        if (this.errorCode == 3) {
+            errorDescription = "write error";
+        }
+        if (this.errorCode == 4) {
+            errorDescription = "format error";
+        } return errorDescription;
+    }
 }

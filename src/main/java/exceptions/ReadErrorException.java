@@ -28,4 +28,20 @@ public class ReadErrorException extends IOException {
     public int getErrorCode() {
         return errorCode;
     }
+
+    public String getErrorDescription() {
+        String errorDescription = null;
+        if (this.errorCode == 0) {
+            errorDescription = "ok";
+        }
+        if (this.errorCode == 1) {
+            errorDescription = "input is empty";
+        }
+        if (this.errorCode == 2) {
+            errorDescription = "read error";
+        }
+        if (this.errorCode == 4) {
+            errorDescription = "format error";
+        } return errorDescription;
+    }
 }

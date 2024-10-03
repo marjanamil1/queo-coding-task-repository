@@ -22,16 +22,15 @@ public class StdOutWriterImpl implements OutputWriter {
         try {
             // Check for empty input
             if (inputList == null || inputList.isEmpty()) {
-                logger.error("Input list is empty.");
+                logger.error("Input list is empty. Exiting with error code 1");
                 throw new WriteErrorException("Input list cannot be empty.", 1);
             }
-
             // Generate the output string
             outputString = inputList.stream()
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
 
-            logger.info("Generated output string: {}", outputString);
+            logger.info("Output string: {}", outputString);
             System.out.println("Output: " + outputString);
             return outputString;
 

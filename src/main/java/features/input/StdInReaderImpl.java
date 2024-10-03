@@ -9,6 +9,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of Input Reader for reading input from stdin
+ */
 public class StdInReaderImpl implements InputReader {
     private static final Logger logger = LoggerFactory.getLogger(StdInReaderImpl.class);
 
@@ -39,7 +42,7 @@ public class StdInReaderImpl implements InputReader {
                 input = removeBlankSpaces(input);
 
                 if (input.isEmpty()) {
-                    throw new ReadErrorException(1); // Error code 1 for empty input error
+                    throw new ReadErrorException(1);
                 }
 
                 String[] values = input.split(",");
@@ -49,20 +52,19 @@ public class StdInReaderImpl implements InputReader {
                         inputReceived = true;
                     } catch (NumberFormatException e) {
                         logger.warn("Invalid float number: {}", value, e);
-                        throw new ReadErrorException("Format error for value: " + value, 4); // Error code 4 for format error
+                        throw new ReadErrorException("Format error for value: " + value, 4);
                     }
                 }
             }
-
             if (!inputReceived) {
-                throw new ReadErrorException(1); // Error code 1 for no valid input received
+                throw new ReadErrorException(1);
             }
-
         } catch (IOException e) {
             logger.error("IOException occurred while reading input.", e);
-            throw new ReadErrorException(e, 2); // Error code 2 for read error
+            throw new ReadErrorException(e, 2);
+        } finally {
+            logger.info("Closing connection to read input from stdin.");
         }
-        logger.info("Closing connection to read input from stdin.");
         return inputList;
     }
 }
