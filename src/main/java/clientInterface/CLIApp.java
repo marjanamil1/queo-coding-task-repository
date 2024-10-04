@@ -43,12 +43,12 @@ public class CLIApp {
             String arg = args[i];
 
             if (options.containsKey(arg) && i + 1 < args.length) {
-                if ((arg.equals("-i")) && (args[i + 1].stripLeading().equals("file") || args[i + 1].stripLeading().equals("url"))) {
+                if ((arg.equals("-i")) && (args[i + 1].stripLeading().equalsIgnoreCase("file") || args[i + 1].stripLeading().equalsIgnoreCase("url"))) {
                     options.put(arg, args[++i]);
                     inputPath = args[++i];
                     System.out.println("Input path is :" + inputPath);
                 } else {
-                    if ((arg.equals("-o")) && (args[i + 1].stripLeading().equals("file") || args[i + 1].stripLeading().equals("url"))) {
+                    if ((arg.equals("-o")) && (args[i + 1].stripLeading().equalsIgnoreCase("file") || args[i + 1].stripLeading().equalsIgnoreCase("url"))) {
                         options.put(arg, args[++i]);
                         outputPath = args[++i];
                         System.out.println("Output path is :" + outputPath);
@@ -62,6 +62,9 @@ public class CLIApp {
             } else {
                 System.err.println("Unknown option: " + arg + " will be ignored.");
             }
+            // the upper logic may overwrite the default -i and -o options,
+            // so will need to check and restore the default in case of invalid option input
+            restoreDefaultOptions(options);
         }
 
         printWelcomeMessage();
@@ -85,7 +88,7 @@ public class CLIApp {
         String inputFormat = options.get("-f");
         String outputFormat = options.get("-F");
         List<Float> inputList = null;
-        
+
         if (inputType.equalsIgnoreCase("file") || inputType.equalsIgnoreCase("url")) {
             inputFilePath = inputPath;
         }
@@ -93,12 +96,6 @@ public class CLIApp {
         if (outputType.equalsIgnoreCase("file") || outputType.equalsIgnoreCase("url")) {
             outputFilePath = outputPath;
         }
-
-        System.out.println("Input type " + inputType);
-        System.out.println("Input type string " + inputTypeString);
-        System.out.println("output type " + outputType);
-        System.out.println("output file path " + outputFilePath);
-        System.out.println("Output type string" + outputTypeString);
 
         outputWriter = new StdOutWriterImpl(); // to display the initial list
 
@@ -228,7 +225,22 @@ public class CLIApp {
             logger.error("Error writing output: {}, ", e.getMessage(), e);
         }
     }
+
+    /**
+     * Method to restore the default options for the input type and output type
+     * if invalid type is entered after "-i" or  "-o"
+     */
+
+    private static void restoreDefaultOptions(Map<String, String> options) {
+        if (!(options.get("-i").equalsIgnoreCase("stdin") ||
+                options.get("-i").equalsIgnoreCase("file") ||
+                options.get("-i").equalsIgnoreCase("url"))) {
+            options.put("-i", "stdin");
+        }
+        if (!(options.get("-o").equalsIgnoreCase("stdout") ||
+                options.get("-o").equalsIgnoreCase("file") ||
+                options.get("-o").equalsIgnoreCase("url"))) {
+            options.put("-o", "stdout");
+        }
+    }
 }
-
-
-

@@ -25,7 +25,7 @@ public class StdInReaderImplTest {
     }
 
     @Test
-    void testReadInput_ValidInput() throws ReadErrorException {
+    void testReadInputValidInput() throws ReadErrorException {
             String simulatedInput = "2.1, 4.2, 0.21,7.5,0.2\n";
             System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
 
@@ -40,7 +40,6 @@ public class StdInReaderImplTest {
 
     @Test
     void testReadInput_IOException() {
-        // Simulate IOException by providing a custom InputStream
         System.setIn(new ByteArrayInputStream(new byte[0]) {
             @Override
             public int read() {
