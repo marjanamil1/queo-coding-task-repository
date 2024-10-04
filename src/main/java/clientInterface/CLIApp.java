@@ -78,24 +78,14 @@ public class CLIApp {
         InputReader inputReader;
         OutputWriter outputWriter;
         OutputWriter resultOutputWriter;
-        String inputTypeString = options.get("-i"); // may contain the file or url path
         String inputType = options.get("-i");
-        String inputFilePath = "";
+        String inputFilePath = inputPath;
         String action = options.get("-a");
-        String outputTypeString = options.get("-o");
         String outputType = options.get("-o");
-        String outputFilePath = "";
+        String outputFilePath = outputPath;
         String inputFormat = options.get("-f");
         String outputFormat = options.get("-F");
         List<Float> inputList = null;
-
-        if (inputType.equalsIgnoreCase("file") || inputType.equalsIgnoreCase("url")) {
-            inputFilePath = inputPath;
-        }
-
-        if (outputType.equalsIgnoreCase("file") || outputType.equalsIgnoreCase("url")) {
-            outputFilePath = outputPath;
-        }
 
         outputWriter = new StdOutWriterImpl(); // to display the initial list
 

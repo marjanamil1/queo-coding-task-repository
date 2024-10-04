@@ -50,6 +50,6 @@ public class StdInReaderImplTest {
         ReadErrorException exception = assertThrows(ReadErrorException.class, () -> {
             stdInReader.readInput();
         });
-        assertEquals(2, exception.getErrorCode()); // Error code for read error
+        assertEquals(2, exception.getErrorCode());
         }
 }

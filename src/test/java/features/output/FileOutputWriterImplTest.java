@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
-
 import exceptions.WriteErrorException;
 import features.actions.ActionsManager;
 import java.nio.file.Files;

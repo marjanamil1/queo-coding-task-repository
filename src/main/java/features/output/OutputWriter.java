@@ -1,7 +1,6 @@
 package features.output;
 
 import exceptions.WriteErrorException;
-
 import java.util.List;
 
 /**
