@@ -22,7 +22,7 @@ public class StdOutWriterImpl implements OutputWriter {
         try {
             // Check for empty input
             if (inputList == null || inputList.isEmpty()) {
-                logger.error("Input list is empty. Exiting with error code 1");
+                logger.error("Input list is empty.");
                 throw new WriteErrorException("Input list cannot be empty.", 1);
             }
             // Generate the output string
@@ -30,15 +30,14 @@ public class StdOutWriterImpl implements OutputWriter {
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
 
-            logger.info("Output string: {}", outputString);
-            System.out.println("Output: " + outputString);
+            logger.info("List of the numbers provided: {}", outputString);
             return outputString;
 
         } catch (Exception e) {
             logger.error("An error occurred while generating output string.", e);
             throw new WriteErrorException("Failed to write output.", e, 3); // Error code 3 for write error
         } finally {
-            logger.info("Closing connection to write output.");
+            logger.info("Closing connection to write std output.");
         }
     }
 }

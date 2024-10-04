@@ -25,7 +25,7 @@ public class StdInReaderImpl implements InputReader {
         List<Float> inputList = new ArrayList<>();
         logger.info("Opening connection to read input from stdin.");
 
-        System.out.println("Enter float numbers separated by \",\", " +
+        System.out.println("Enter float numbers separated by \",\" " +
                 "\n Blank spaces are allowed and will be ignored. " +
                 "\n To end the list press CTRL+Z (Windows) or CTRL+D (Unix):");
 
