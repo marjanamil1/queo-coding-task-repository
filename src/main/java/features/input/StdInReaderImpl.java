@@ -1,5 +1,6 @@
 package features.input;
 
+import exceptions.InvalidNumberFormatException;
 import exceptions.ReadErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,13 +24,13 @@ public class StdInReaderImpl implements InputReader {
      */
     public List<Float> readInput() throws ReadErrorException {
         List<Float> inputList = new ArrayList<>();
-        logger.info("Opening connection to read input from stdin.");
 
         System.out.println("Enter float numbers separated by \",\" " +
                 "\n Blank spaces are allowed and will be ignored. " +
                 "\n To end the list press CTRL+Z (Windows) or CTRL+D (Unix):");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            logger.info("Opening connection to read input from stdin.");
             String input;
             boolean inputReceived = false;
 
@@ -51,8 +52,8 @@ public class StdInReaderImpl implements InputReader {
                         inputList.add(Float.parseFloat(value));
                         inputReceived = true;
                     } catch (NumberFormatException e) {
-                        logger.warn("Invalid float number: {}", value, e);
-                        throw new ReadErrorException("Format error for value: " + value, 4);
+                        logger.error("Invalid float number: {}", value, e);
+                        throw new InvalidNumberFormatException("Format error for value: " + value, e, 4);
                     }
                 }
             }
@@ -66,5 +67,16 @@ public class StdInReaderImpl implements InputReader {
             logger.info("Closing connection to read input from stdin.");
         }
         return inputList;
+    }
+
+    /**
+     * Removes all blank spaces in the string.
+     * This method can be used by all implementations of this interface.
+     *
+     * @param value the input string to sanitize
+     * @return a sanitized string without any whitespace characters
+     */
+    private String removeBlankSpaces(String value) {
+        return value.replaceAll("\\s+", "");
     }
 }

@@ -15,15 +15,4 @@ import java.util.List;
      * @return a list containing the parsed float values.
      */
     List<Float> readInput() throws ReadErrorException;
-
-    /**
-     * Removes all blank spaces in the string.
-     * This method can be used by all implementations of this interface.
-     *
-     * @param value the input string to sanitize
-     * @return a sanitized string without any whitespace characters
-     */
-    default String removeBlankSpaces(String value) {
-        return value.replaceAll("\\s+", "");
-    }
 }

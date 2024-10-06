@@ -2,8 +2,6 @@ package clientInterface;
 
 import exceptions.ReadErrorException;
 import exceptions.WriteErrorException;
-import features.actions.ActionsManager;
-import features.actions.ActionsManagerImpl;
 import features.input.FileInputReaderImpl;
 import features.input.InputReader;
 import features.input.StdInReaderImpl;
@@ -14,17 +12,19 @@ import features.output.StdOutWriterImpl;
 import features.output.UrlOutputWriterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Command line application
+ */
 public class CLIApp {
 
     private static final Logger logger = LoggerFactory.getLogger(CLIApp.class);
 
     public static void main(String[] args) {
+        int exitCode = 0;
 
         String inputPath = null;
         String outputPath = null;
@@ -34,9 +34,9 @@ public class CLIApp {
         // Default values
         options.put("-i", "stdin");
         options.put("-o", "stdout");
-        options.put("-f", "csv");
-        options.put("-F", "csv");
         options.put("-a", "");
+        options.put("-f", "csv");
+        options.put("-F", "csv");;
 
         // Iterate through the command line arguments
         for (int i = 0; i < args.length; i++) {
@@ -46,12 +46,12 @@ public class CLIApp {
                 if ((arg.equals("-i")) && (args[i + 1].stripLeading().equalsIgnoreCase("file") || args[i + 1].stripLeading().equalsIgnoreCase("url"))) {
                     options.put(arg, args[++i]);
                     inputPath = args[++i];
-                    System.out.println("Input path is :" + inputPath);
+                    logger.info("Input path is :" + inputPath);
                 } else {
                     if ((arg.equals("-o")) && (args[i + 1].stripLeading().equalsIgnoreCase("file") || args[i + 1].stripLeading().equalsIgnoreCase("url"))) {
                         options.put(arg, args[++i]);
                         outputPath = args[++i];
-                        System.out.println("Output path is :" + outputPath);
+                        logger.info("Output path is :" + outputPath);
                     } else {
                         options.put(arg, args[++i]);
                     }
@@ -65,6 +65,18 @@ public class CLIApp {
             // the upper logic may overwrite the default -i and -o options,
             // so will need to check and restore the default in case of invalid option input
             restoreDefaultOptions(options);
+            logger.info("Options selected: \n" +
+                    "-i (input type): {} \n" +
+                    "-o (output type): {} \n" +
+                    "-a (action): {} \n" +
+                    "-f (input format if input type is file): {}" +
+                    "-F (output format if output type is file: {}",
+                    options.get("-i"),
+                    options.get("-o"),
+                    options.get("-a"),
+                    options.get("-f"),
+                    options.get("-F")
+            );
         }
 
         printWelcomeMessage();
@@ -76,7 +88,6 @@ public class CLIApp {
         }
 
         InputReader inputReader;
-        OutputWriter outputWriter;
         OutputWriter resultOutputWriter;
         String inputType = options.get("-i");
         String inputFilePath = inputPath;
@@ -87,8 +98,6 @@ public class CLIApp {
         String outputFormat = options.get("-F");
         List<Float> inputList = null;
 
-        outputWriter = new StdOutWriterImpl(); // to display the initial list
-
         switch (inputType.toUpperCase()) {
             case "STDIN":
                 System.out.println("Please enter a list of float numbers separated by \",\"");
@@ -96,14 +105,10 @@ public class CLIApp {
                 try {
                     inputList = inputReader.readInput();
                     logger.info("Performing the selected operations on the " +
-                            "input list " + outputWriter.writeOutput(inputList));
-
+                            "input list " + inputList);
                 } catch (ReadErrorException e) {
                     logger.error("Error reading input: {} application will exit with code " + e.getErrorCode(), e.getMessage(), e);
-                    System.exit(e.getErrorCode());
-                } catch (WriteErrorException e) {
-                    logger.error("Error {} while writing the output, application will exit with error code " + e.getErrorCode(), e.getErrorCode());
-                    System.exit(e.getErrorCode());
+                    exitCode = e.getErrorCode();
                 }
                 break;
             case "FILE":
@@ -113,15 +118,11 @@ public class CLIApp {
                 try {
                     inputList = inputReader.readInput();
                     logger.info("Performing the selected operations on the " +
-                            "input list " + outputWriter.writeOutput(inputList));
+                            "input list " + inputList);
                 } catch (ReadErrorException e) {
-                    logger.error(e.getMessage(), "Exiting the application with code {}", e.getErrorCode());
-                    System.exit(e.getErrorCode());
-                } catch (IOException e1) {
-                    logger.error("IO Error while reading the file path, exiting the application with code 2");
-                    System.exit(2);
+                    logger.error("Error reading input {} the application with code {} ", e.getMessage(), e.getErrorCode());
+                    exitCode = e.getErrorCode();
                 }
-
                 break;
             case "URL":
                 inputReader = new UrlInputReaderImpl();
@@ -133,47 +134,25 @@ public class CLIApp {
                 break;
         }
 
-        ActionsManager actionsManager = new ActionsManagerImpl();
-        float sum;
-        float minValue;
-        float maxValue;
-        List<Float> filteredValues;
-        List<Float> resultValues = new ArrayList<>();
-
-        switch (action.toUpperCase()) {
-            case "SUM":
-                sum = actionsManager.sum(inputList);
-                resultValues.add(sum);
-                break;
-            case "MINMAX":
-                minValue = actionsManager.min(inputList); // 0 if the list is empty or null
-                maxValue = actionsManager.max(inputList); // 0 if the list is empty or null
-                resultValues.add(minValue);
-                resultValues.add(maxValue);
-                break;
-            case "LT4":
-                filteredValues = actionsManager.filter(inputList);
-                resultValues.addAll(filteredValues);
-                break;
-            default:
-                System.err.println("Unknown operation, will be ignored.");
-                break;
-        }
-
         switch (outputType.toUpperCase()) {
             case "STDOUT":
-                resultOutputWriter = new StdOutWriterImpl();
-                printOutput(resultOutputWriter, resultValues, action);
+                try {
+                    resultOutputWriter = new StdOutWriterImpl(action);
+                    printOutput(resultOutputWriter, inputList, action);
+                } catch (WriteErrorException e) {
+                    logger.error(e.getMessage(), "Exiting the application with code {}", e.getErrorCode());
+                    exitCode = e.getErrorCode();
+                }
                 break;
             case "FILE":
                 try {
+                    resultOutputWriter = new FileOutputWriterImpl(action, outputFormat, outputFilePath);
+                    resultOutputWriter.writeOutput(inputList);
                     System.out.println("The result file of the performed operation " + action +
                             " is contained in the output file " + outputFilePath);
-                    resultOutputWriter = new FileOutputWriterImpl(action, outputFormat, outputFilePath);
-                    resultOutputWriter.writeOutput(resultValues);
                 } catch (WriteErrorException e) {
                     logger.error(e.getMessage(), "Exiting the application with code {}", e.getErrorCode());
-                    System.exit(e.getErrorCode());
+                    exitCode = e.getErrorCode();
                 }
                 break;
 
@@ -184,8 +163,19 @@ public class CLIApp {
                 break;
             default:
                 System.err.println("Unknown output type, will be ignored.");
+                exitCode = 4;
                 break;
         }
+
+        Map<Integer, String> exitDescriptions = new HashMap<>();
+
+        exitDescriptions.put(0, "ok");
+        exitDescriptions.put(1, "input is empty");
+        exitDescriptions.put(2, "read error");
+        exitDescriptions.put(3, "write error");
+        exitDescriptions.put(4, "read error");
+
+        logger.info("Exiting application with code {}: {}", exitCode, exitDescriptions.get(exitCode));
     }
 
     private static void printWelcomeMessage() {
@@ -206,14 +196,9 @@ public class CLIApp {
     /**
      * Method to print output to STDOUT
      */
-    private static void printOutput(OutputWriter writer, List<Float> values, String action) {
-        try {
+    private static void printOutput(OutputWriter writer, List<Float> values, String action) throws WriteErrorException {
             System.out.println("The result of the specified operation " +
                     action + " is: " + writer.writeOutput(values));
-            System.exit(0);
-        } catch (WriteErrorException e) {
-            logger.error("Error writing output: {}, ", e.getMessage(), e);
-        }
     }
 
     /**
@@ -222,15 +207,23 @@ public class CLIApp {
      */
 
     private static void restoreDefaultOptions(Map<String, String> options) {
-        if (!(options.get("-i").equalsIgnoreCase("stdin") ||
+        if (options.get("-i") == null || !(options.get("-i").equalsIgnoreCase("stdin") ||
                 options.get("-i").equalsIgnoreCase("file") ||
                 options.get("-i").equalsIgnoreCase("url"))) {
             options.put("-i", "stdin");
         }
-        if (!(options.get("-o").equalsIgnoreCase("stdout") ||
+        if (options.get("-o") == null || !(options.get("-o").equalsIgnoreCase("stdout") ||
                 options.get("-o").equalsIgnoreCase("file") ||
                 options.get("-o").equalsIgnoreCase("url"))) {
             options.put("-o", "stdout");
+        }
+        if (options.get("-f") == null || !(options.get("-f").equalsIgnoreCase("csv") ||
+                options.get("-f").equalsIgnoreCase("json"))) {
+            options.put("-f", "csv");
+        }
+        if (options.get("-F") == null || !(options.get("-F").equalsIgnoreCase("csv") ||
+                options.get("-F").equalsIgnoreCase("json"))) {
+            options.put("-F", "csv");
         }
     }
 }

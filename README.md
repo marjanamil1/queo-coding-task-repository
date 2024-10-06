@@ -46,6 +46,14 @@ followed by the OPTIONS:
 
 -F -- output format: csv or json, if none or invalid format is provided, default is set to csv
 
+The project package has included test files for valid, invalid and empty csv and json files:
+target/classes/csv_input_valid.csv
+target/classes/csv_input_empty.csv
+target/classes/csv_input_invalid.csv
+target/classes/json_input_valid.json
+target/classes/json_input_empty.json
+target/classes/json_input_invalid.json
+
 ### Tests ###
 
 This solution includes tests which can be run using the command:
@@ -57,6 +65,6 @@ This command will execute all tests, which are also run when executing the mvn p
 There are two types of tests included based on the purpose:
 
 - Unit tests for testing the actions functionalities (methods in the ActionsManagerImpl class) 
-and the stadard input and output which is mocked in the tests for StdInReaderImpl and StdOutWriter classes
+and the standard input and output which is mocked in the tests for StdInReaderImpl and StdOutWriter classes
   (Testing StInReaderImpl and StWriteImpl with keyboard input and output on the screen would be done by running the application.)
 - Integration tests for testing the FileInputReader and FileOutputWriter by reading and writing to files included in the /test/resources directory

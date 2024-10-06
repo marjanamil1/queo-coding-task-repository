@@ -6,17 +6,17 @@ public class WriteErrorException extends IOException {
     private final int errorCode;
 
     public WriteErrorException(int errorCode) {
-        super("Error while writing the file. Error code: " + errorCode);
+        super("Error while writing the file.");
         this.errorCode = errorCode;
     }
 
     public WriteErrorException(String message, int errorCode) {
-        super(message + " Error code: " + errorCode);
+        super(message);
         this.errorCode = errorCode;
     }
 
     public WriteErrorException(String message, Throwable cause, int errorCode) {
-        super(message + " Error code: " + errorCode, cause);
+        super(message, cause);
         this.errorCode = errorCode;
     }
 
@@ -27,18 +27,5 @@ public class WriteErrorException extends IOException {
 
     public int getErrorCode() {
         return errorCode;
-    }
-
-    public String getErrorDescription() {
-        String errorDescription = null;
-        if (this.errorCode == 0) {
-            errorDescription = "ok";
-        }
-        if (this.errorCode == 3) {
-            errorDescription = "write error";
-        }
-        if (this.errorCode == 4) {
-            errorDescription = "format error";
-        } return errorDescription;
     }
 }

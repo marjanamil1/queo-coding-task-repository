@@ -3,12 +3,11 @@ package features.input;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
+import exceptions.InvalidNumberFormatException;
 import exceptions.ReadErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +32,6 @@ public class FileInputReaderImpl implements InputReader {
      */
     @Override
     public List<Float> readInput() throws ReadErrorException {
-        logger.info("Please enter the path to the file read from. " +
-                "Acceptable formats are csv and json. " +
-                "Other formats will result in a read error.");
 
         switch (format.toLowerCase()) {
             case "csv":
@@ -51,54 +47,102 @@ public class FileInputReaderImpl implements InputReader {
         validateFilePath();
 
         List<Float> values = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String headerLine = br.readLine();
-            validateCsvHeader(headerLine);
+        File file = new File(filePath);
 
+        if (!file.exists() || !file.canRead()) {
+            String errorMessage = "Read Error: File with path " + filePath +
+                    " does not exist or is not readable.";
+            logger.error(errorMessage);
+            throw new ReadErrorException(errorMessage, 2);
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
+            int columnCount;
+            int lineNumber = 0;
+
+            // Read the first line to check if the file is empty
+            line = br.readLine();
+            if (line == null || line.trim().isEmpty()) {
+                logger.error("CSV Input file {} is empty. Error code: 1", filePath);
+                throw new ReadErrorException("Error: Input is empty", 1);
+            }
+
+            // Process the first line and initialize columnCount
+            String[] valuesArray = line.split(",");
+            columnCount = valuesArray.length;
+            lineNumber++;
+
+            // Read the values from the first line
+            for (String column : valuesArray) {
+                String sanitizedValue = column.trim();
+                if (!sanitizedValue.isEmpty()) {
+                    values.add(parseFloat(sanitizedValue));
+                }
+            }
+
+            // Process subsequent lines
             while ((line = br.readLine()) != null) {
-                for (String column : line.split(",")) {
+                lineNumber++;
+                valuesArray = line.split(",");
+
+                if (valuesArray.length != columnCount) {
+                    String errorMessage = "Format Error: Inconsistent number of columns at line " + lineNumber;
+                    logger.error(errorMessage + " Error code: 4");
+                    throw new ReadErrorException(errorMessage, 4);
+                }
+
+                for (String column : valuesArray) {
                     String sanitizedValue = column.trim();
                     if (!sanitizedValue.isEmpty()) {
                         values.add(parseFloat(sanitizedValue));
                     }
                 }
             }
+        } catch (InvalidNumberFormatException e) {
+            logger.error("Number Format Error {}", e.getMessage());
+            throw new InvalidNumberFormatException(e.getMessage(), e, e.getErrorCode());
+        } catch (ReadErrorException e) {
+            throw new ReadErrorException(e.getMessage(), e, e.getErrorCode());
         } catch (IOException e) {
-            throw new ReadErrorException("Error while reading the file " + filePath, e, 2);
+            logger.error("Read Error {} the file: {}", e.getMessage(), filePath);
+            throw new ReadErrorException("Read Error ", e, 2);
         }
+
+        logger.info("CSV file is valid and values are read successfully.");
         return values;
     }
 
     private List<Float> readJsonFile() throws ReadErrorException {
         validateFilePath();
-
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            return new Gson().fromJson(reader, new TypeToken<List<Float>>(){}.getType());
+            List<Float> jsonList = new Gson().fromJson(reader, new TypeToken<List<Float>>(){}.getType());
+
+            // Check if the result is empty
+            if (jsonList == null || jsonList.isEmpty()) {
+                throw new ReadErrorException("Error: Input is empty.", 1);
+            }
+            return jsonList;
         } catch (JsonParseException e) {
             throw new ReadErrorException("Invalid JSON format: " + e.getMessage(), e, 4);
+        } catch (ReadErrorException e) {
+            throw new ReadErrorException(e.getMessage(), e, e.getErrorCode());
         } catch (IOException e) {
             throw new ReadErrorException("Error while reading the file " + filePath, e, 2);
         }
     }
 
     private void validateFilePath() throws ReadErrorException {
-        if (filePath.trim().isEmpty()) {
+        if (filePath == null || filePath.trim().isEmpty()) {
             throw new ReadErrorException("File path cannot be empty", 1);
         }
     }
 
-    private void validateCsvHeader(String headerLine) throws ReadErrorException {
-        if (headerLine == null || headerLine.trim().isEmpty()) {
-            throw new ReadErrorException("The CSV file is empty.", 4);
-        }
-    }
-
-    private Float parseFloat(String value) throws ReadErrorException {
+    private Float parseFloat(String value) throws InvalidNumberFormatException {
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException e) {
-            throw new ReadErrorException("Invalid number format: " + value, e, 4);
+            throw new InvalidNumberFormatException("Invalid number format: " + value, e, 4);
         }
     }
 }
