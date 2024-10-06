@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class StdInReaderImplTest {
     private StdInReaderImpl stdInReader;
-
     private final InputStream originalIn = System.in; // Store the original System.in
     @BeforeEach
     void setUp() {

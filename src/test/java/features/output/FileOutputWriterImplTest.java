@@ -108,6 +108,4 @@ public class FileOutputWriterImplTest {
         });
         assertEquals("Invalid format of the output file: txt", exception.getMessage());
     }
-
-    // TODO  Tests for the other Actions (MINMAX, LT4, for JSON and CSV format)
 }
