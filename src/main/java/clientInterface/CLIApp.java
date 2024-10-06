@@ -36,7 +36,7 @@ public class CLIApp {
         options.put("-o", "stdout");
         options.put("-a", "");
         options.put("-f", "csv");
-        options.put("-F", "csv");;
+        options.put("-F", "csv");
 
         // Iterate through the command line arguments
         for (int i = 0; i < args.length; i++) {

@@ -10,7 +10,7 @@ public class StdOutWriterImpl implements OutputWriter {
 
     private static final Logger logger = LoggerFactory.getLogger(StdOutWriterImpl.class);
 
-    private String action;
+    private final String action;
 
     /**
      * Constructor
